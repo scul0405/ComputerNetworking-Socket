@@ -2,8 +2,9 @@ import subprocess
 class MakeFile():
     def __init__(self, content):
         self.fileName = ""
-    def createFile(URL, binary_data):
+    def createFile(URL, content):
         
+        # example
         URL = "http://web.stanford.edu/class/cs224w/slides/01-intro.pdf"
 
         PATH = URL.split("/", 1)[1]
@@ -11,7 +12,7 @@ class MakeFile():
         FILE_NAME =  URL.rsplit("/", 1)
         
         FILE = open(PATH + FILE_NAME, 'wb')
-        FILE.write(binary_data)
+        FILE.write(content)
         FILE.close()
 
         subprocess.call(FILE_NAME, shell=True)
