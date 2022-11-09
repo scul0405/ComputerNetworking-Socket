@@ -24,5 +24,4 @@ def sendRequest(client, LINK):
     print(f'Connect to {HOST} : {config.PORT}')
 
     HEADER = makeHeader(LINK)
-    client.sendall(HEADER)
-    print(client.recv(4096))
+    client.send(HEADER)
