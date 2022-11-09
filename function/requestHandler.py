@@ -26,3 +26,4 @@ def sendRequest(client, LINK):
     HEADER = makeHeader(LINK)
     client.sendall(HEADER)
     print(client.recv(4096))
+    
