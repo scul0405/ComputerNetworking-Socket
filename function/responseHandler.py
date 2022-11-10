@@ -40,6 +40,30 @@ def getContent(client, resHeader, total):
                 total += len(res)
     return data
 
+def getContent_chunked(client):
+    data = b""
+    splitStr = b"\r\n"
+    endStr   = b"\r\n0\r\n\r\n"
+    
+    while True:
+        rec = client.recv(config.BUFFER_SIZE)
+        # Received ending data
+        ENDING = rec[len(rec)-7:]
+        if ENDING[2:] == endStr[2:]:
+            if ENDING == endStr:
+                last_data = rec[:len(rec)-len(endStr)]
+                data += last_data
+            break
+        # Remove chunked-length & "\r\n"
+        if rec.find(splitStr) != -1:
+            if rec[len(rec)-2:] == splitStr:
+                rec = rec.rsplit(splitStr, 1)[0]
+            rec = rec.split(splitStr, 1)[1]
+
+        data += rec
+     
+    return data
+
 def getResponse(client):
     splitStr = b"\r\n\r\n"
     data = b""
@@ -56,8 +80,17 @@ def getResponse(client):
 
     return data
 
+def getResponse_chunked(client):
+    data = b""
+    startStr = b"\r\n\r\n"
+    # Get Header
+    while data.find(startStr) == -1:
+        data += client.recv(config.BUFFER_SIZE)
+    
+    # Lay data con lai sau khi loai bo header
+    data = data.split(b"\r\n\r\n")[1]
 
-
-
-
-
+    # Noi them tu getContent_chunked
+    data += getContent_chunked(client)
+    
+    return data
