@@ -19,9 +19,5 @@ def makeHeader(LINK):
     return HEADER
 
 def sendRequest(client, LINK):
-    HOST, _ = getHostAndRoute(LINK)
-    client.connect((HOST,config.PORT))
-    print(f'Connect to {HOST} : {config.PORT}')
-
     HEADER = makeHeader(LINK)
     client.send(HEADER)

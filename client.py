@@ -1,14 +1,19 @@
 import socket
 import config
-from function.requestHandler import *
-from function.responseHandler import *
-from function.utilities import *
+from function.method import *
+from threading import Thread
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print('Socket created')
+def createAConnection(LINK):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print('Socket created')
 
-sendRequest(client, config.LINKS[0])
-data = getResponse(client)
+    makeRequest(client, LINK)
 
-client.close()
-print('Socket disconnected')
+    client.close()
+    print('Socket disconnected')
+
+# Multiple connection in parallel
+for LINK in config.LINKS:
+    #print(LINK)
+    thread = Thread(target=createAConnection, args=(LINK,))
+    thread.start()
