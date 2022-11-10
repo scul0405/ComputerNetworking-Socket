@@ -23,6 +23,7 @@ def getContent(client, resHeader, total):
     contentType = getContentType(resHeader)
     contentLength = getLengthOfContent(resHeader)
 
+    print(contentType, contentLength, total)
     print(contentLength, contentType)
 
     match contentType:
