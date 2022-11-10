@@ -23,7 +23,7 @@ def getContent(client, resHeader, total):
     contentType = getContentType(resHeader)
     contentLength = getLengthOfContent(resHeader)
 
-    print(contentLength, contentType)
+    print(contentType, contentLength, total)
 
     match contentType:
         case "text/html":
@@ -55,9 +55,3 @@ def getResponse(client):
     data += getContent(client,resHeader,total)
 
     return data
-
-
-
-
-
-
