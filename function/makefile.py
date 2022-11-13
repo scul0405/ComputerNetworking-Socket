@@ -2,7 +2,6 @@ import os
 import os.path
 from function.requestHandler import*
 from function.utilities import*
-from function.responseHandler import*
 
 
 class MakeFile:
@@ -18,15 +17,12 @@ class MakeFile:
     def createFile(self):
         print("test")
         if isFile(self.ROUTE): #truong hop link chi co 1 file index
-            #print(os.getcwd())
-            
-            print(self.content[:self.content.find(b"\r\n\r\n")])
-            print(getContentType(self.content[:self.content.find(b"\r\n\r\n")]))
-            if (getContentType(self.content[:self.content.find(b"\r\n\r\n")])=="text/html"):
-                fout = open("index.html","w")
-                #print("contet len: ",len(self.content))
-                fout.write(self.content.decode("utf-8"))
-                fout.close()
-                os.startfile("index.html")
-            else:
-                print("testelse")
+            #print(os.getcwd()) 
+            fout = open("index.html","w")
+            #print("contet len: ",len(self.content))
+            fout.write(self.content.decode("utf-8"))
+            fout.close()
+            os.startfile("index.html")
+        else:
+            print("testelse")
+
