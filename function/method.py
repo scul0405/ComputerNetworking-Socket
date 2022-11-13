@@ -2,7 +2,7 @@ import config
 from function.requestHandler import *
 from function.responseHandler import *
 from function.utilities import *
-
+from function.makefile import *
 def getResponseByRequest(client, LINK):
     #Send request
     sendRequest(client,LINK)
@@ -12,6 +12,9 @@ def getResponseByRequest(client, LINK):
 
     #Make File
     print("data len: ",len(data))
+    #mf = MakeFile(LINK,data)
+    #mf.createFile()
+    
 
 def makeRequest(client, LINK):
     #Connect to HOST
