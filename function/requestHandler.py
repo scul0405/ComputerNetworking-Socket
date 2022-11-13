@@ -1,6 +1,9 @@
 import config
 
 def getHostAndRoute(LINK):
+    protocolIndex = LINK.find("//")
+    # Remove protocol for link
+    LINK = LINK[protocolIndex+2:]
     indexOfSplit = LINK.find('/')
     if indexOfSplit == -1:
         ROUTE = '/'
