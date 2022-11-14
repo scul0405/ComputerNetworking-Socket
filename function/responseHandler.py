@@ -44,15 +44,14 @@ def getContent(client, resHeader, total):
 def getContent_chunked(client):
     data = b""
     while True:
-        # find chunk length
         chunk_data = b""
         # get data for the first time
         if not rec:
             rec = client.recv(config.BUFFER_SIZE)
         # Split chunk-length && chunk-data
         splitChunk = rec.split(b"\r\n", 1)
-        chunk_leng16 = splitChunk[0]
-        chunk_leng10 = int(chunk_leng16.decode(), 16)
+        chunk_leng16 = splitChunk[0]                    # chunk-length in hex
+        chunk_leng10 = int(chunk_leng16.decode(), 16)   # conver to decimal for calculate
         chunk_data = splitChunk[1]
         
         # End of download
@@ -61,7 +60,7 @@ def getContent_chunked(client):
         # If it not have enough chunk-data -> get more
         while len(chunk_data) < chunk_leng10:
             chunk_data += client.recv(config.BUFFER_SIZE)
-        
+     
         # Add chunk-data to data
         data += chunk_data[:chunk_leng10]
         # Give data remaining in chunk-data for the next chunk (loop)
