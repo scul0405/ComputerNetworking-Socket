@@ -43,6 +43,7 @@ def getContent(client, resHeader, total):
 
 def getContent_chunked(client):
     data = b""
+    rec = b""
     while True:
         chunk_data = b""
         # get data for the first time
