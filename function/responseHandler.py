@@ -43,26 +43,30 @@ def getContent(client, resHeader, total):
 
 def getContent_chunked(client):
     data = b""
-    splitStr = b"\r\n"
-    endStr   = b"\r\n0\r\n\r\n"
-    
+    rec = b""
     while True:
-        rec = client.recv(config.BUFFER_SIZE)
-        # Received ending data
-        ENDING = rec[len(rec)-7:]
-        if ENDING[2:] == endStr[2:]:
-            if ENDING == endStr:
-                last_data = rec[:len(rec)-len(endStr)]
-                data += last_data
+        chunk_data = b""
+        # get data for the first time
+        if not rec:
+            rec = client.recv(config.BUFFER_SIZE)
+        # Split chunk-length && chunk-data
+        splitChunk = rec.split(b"\r\n", 1)
+        chunk_leng16 = splitChunk[0]                    # chunk-length in hex
+        chunk_leng10 = int(chunk_leng16.decode(), 16)   # conver to decimal for calculate
+        chunk_data = splitChunk[1]
+        
+        # End of download
+        if chunk_leng10 == 0:
             break
-        # Remove chunked-length & "\r\n"
-        if rec.find(splitStr) != -1:
-            if rec[len(rec)-2:] == splitStr:
-                rec = rec.rsplit(splitStr, 1)[0]
-            rec = rec.split(splitStr, 1)[1]
-
-        data += rec
+        # If it not have enough chunk-data -> get more
+        while len(chunk_data) < chunk_leng10:
+            chunk_data += client.recv(config.BUFFER_SIZE)
      
+        # Add chunk-data to data
+        data += chunk_data[:chunk_leng10]
+        # Give data remaining in chunk-data for the next chunk (loop)
+        rec = chunk_data[chunk_leng10 + 2:]
+
     return data
 
 def getResponse(client):
@@ -83,13 +87,14 @@ def getResponse(client):
 
 def getResponse_chunked(client):
     data = b""
-    startStr = b"\r\n\r\n"
+    startStr = b"\r\n\r\n" 
     # Get Header
-    while data.find(startStr) == -1:
-        data += client.recv(config.BUFFER_SIZE)
+    data += client.recv(4)
+    while data[:len(data)][len(data)-4:] != startStr:
+        data += client.recv(1)
     
     # Lay data con lai sau khi loai bo header
-    data = data.split(b"\r\n\r\n")[1]
+    HEADER = data.rsplit(b"\r\n\r\n")[0]
 
     # Noi them tu getContent_chunked
     data += getContent_chunked(client)
