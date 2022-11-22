@@ -85,9 +85,8 @@ def getHeader(client):
 
 def getResponse(client):
     resHeader, data = getHeader(client)
-    
     #Kiem tra Header co can su dung chunked hay khong
-    if (resHeader.find("Transfer-Encoding: chunked") != -1):
+    if (resHeader.find(b"Transfer-Encoding: chunked") == -1):
         # Xu li content length
         total = len(data)
         data += getContent(client,resHeader,total)
