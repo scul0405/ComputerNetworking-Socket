@@ -93,7 +93,6 @@ def getResponse_chunked(client):
     while data[:len(data)][len(data)-4:] != startStr:
         data += client.recv(1)
     
-    # Lay data con lai sau khi loai bo header
     HEADER = data.rsplit(b"\r\n\r\n")[0]
     if (HEADER.find('Transfer-Encoding: chunked') != -1):
         return getResponse(client)
