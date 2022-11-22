@@ -41,9 +41,9 @@ def getContent(client, resHeader, total):
                 total += len(res)
     return data
 
-def getContent_chunked(client):
+def getContent_chunked(client, content):
     data = b""
-    rec = b""
+    rec = content
     while True:
         chunk_data = b""
         # get data for the first time
@@ -69,35 +69,30 @@ def getContent_chunked(client):
 
     return data
 
-def getResponse(client):
+def getHeader(client):
     splitStr = b"\r\n\r\n"
     data = b""
     while data.find(splitStr) == -1:
         data += client.recv(config.BUFFER_SIZE)
     
     indexStartContent = data.find(splitStr)
+    #Lay Header
     resHeader = data[:indexStartContent]
-
-    #Lay data con lai sau khi loai bo header, sau do noi them tu getContent
+    #Lay data con lai sau khi loai bo header
     data = data[indexStartContent + 4:]
-    total = len(data)
-    data += getContent(client,resHeader,total)
+    
+    return resHeader, data
 
-    return data
-
-def getResponse_chunked(client):
-    data = b""
-    startStr = b"\r\n\r\n" 
-    # Get Header
-    data += client.recv(4)
-    while data[:len(data)][len(data)-4:] != startStr:
-        data += client.recv(1)
+def getResponse(client):
+    resHeader, data = getHeader(client)
     
-    HEADER = data.rsplit(b"\r\n\r\n")[0]
-    if (HEADER.find('Transfer-Encoding: chunked') != -1):
-        return getResponse(client)
-    
-    # Noi them tu getContent_chunked
-    data += getContent_chunked(client)
-    
+    #Kiem tra Header co can su dung chunked hay khong
+    if (resHeader.find("Transfer-Encoding: chunked") != -1):
+        # Xu li content length
+        total = len(data)
+        data += getContent(client,resHeader,total)
+    else:
+        # Xu li chunked
+        data = getContent_chunked(client, data)
+        
     return data
