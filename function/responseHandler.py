@@ -53,7 +53,7 @@ def getContent_chunked(client,resHeader,content):
         chunk_data = b""
         # get data for the first time
         if not rec:
-            rec = client.recv()
+            rec = client.recv(buff_size)
         # Split chunk-length && chunk-data
         splitChunk = rec.split(b"\r\n", 1)
         chunk_leng16 = splitChunk[0]                    # chunk-length in hex
