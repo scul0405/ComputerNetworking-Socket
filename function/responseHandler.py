@@ -41,14 +41,19 @@ def getContent(client, resHeader, total):
                 total += len(res)
     return data
 
-def getContent_chunked(client):
+def getContent_chunked(client,resHeader,content):
+    contentType = getContentType(resHeader)
+    buff_size = config.BUFFER_SIZE
+    if (contentType != b"text/html"):
+        buff_size = 50*config.BUFFER_SIZE
+    
     data = b""
-    rec = b""
+    rec = content
     while True:
         chunk_data = b""
         # get data for the first time
         if not rec:
-            rec = client.recv(config.BUFFER_SIZE)
+            rec = client.recv(buff_size)
         # Split chunk-length && chunk-data
         splitChunk = rec.split(b"\r\n", 1)
         chunk_leng16 = splitChunk[0]                    # chunk-length in hex
@@ -60,7 +65,7 @@ def getContent_chunked(client):
             break
         # If it not have enough chunk-data -> get more
         while len(chunk_data) < chunk_leng10:
-            chunk_data += client.recv(config.BUFFER_SIZE)
+            chunk_data += client.recv(buff_size)
      
         # Add chunk-data to data
         data += chunk_data[:chunk_leng10]
@@ -69,34 +74,29 @@ def getContent_chunked(client):
 
     return data
 
-def getResponse(client):
+def getHeader(client):
     splitStr = b"\r\n\r\n"
     data = b""
     while data.find(splitStr) == -1:
         data += client.recv(config.BUFFER_SIZE)
     
     indexStartContent = data.find(splitStr)
+    #Lay Header
     resHeader = data[:indexStartContent]
-
-    #Lay data con lai sau khi loai bo header, sau do noi them tu getContent
+    #Lay data con lai sau khi loai bo header
     data = data[indexStartContent + 4:]
-    total = len(data)
-    data += getContent(client,resHeader,total)
-
-    return data
-
-def getResponse_chunked(client):
-    data = b""
-    startStr = b"\r\n\r\n" 
-    # Get Header
-    data += client.recv(4)
-    while data[:len(data)][len(data)-4:] != startStr:
-        data += client.recv(1)
     
-    # Lay data con lai sau khi loai bo header
-    HEADER = data.rsplit(b"\r\n\r\n")[0]
+    return resHeader, data
 
-    # Noi them tu getContent_chunked
-    data += getContent_chunked(client)
-    
+def getResponse(client):
+    resHeader, data = getHeader(client)
+    #Kiem tra Header co can su dung chunked hay khong
+    if (resHeader.find(b"Transfer-Encoding: chunked") == -1):
+        # Xu li content length
+        total = len(data)
+        data += getContent(client,resHeader,total)
+    else:
+        # Xu li chunked
+        data = getContent_chunked(client,resHeader,data)
+        
     return data
