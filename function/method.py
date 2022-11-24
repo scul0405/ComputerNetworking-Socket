@@ -33,10 +33,8 @@ def makeRequest(client, LINK):
         files = getFolderFiles(htmlData)
         
         # export .html of folder
-        if len(files) == 0:
-            LINK = LINK + "/" + ROUTE[1:] + ".html"
-            mf = MakeFile(LINK,htmlData)
-            mf.createFile(ischunk)
+        mf = MakeFile(LINK + "/" + "index.html",htmlData)
+        mf.createFile(ischunk)
         
         # download file from folder if exist
         for file in files:
