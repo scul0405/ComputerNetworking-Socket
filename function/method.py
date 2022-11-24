@@ -7,10 +7,8 @@ from function.makefile import *
 def getResponseByRequest(client, LINK):
     #Send request
     sendRequest(client,LINK)
-
     #Get data
     data, ischunk = getResponse(client)
-    print("Kiem tra chunk")
     if ischunk:
         print("La file chunk")
     #Make File
@@ -33,6 +31,10 @@ def makeRequest(client, LINK):
         sendRequest(client, LINK)
         htmlData, ischunk = getResponse(client)
         files = getFolderFiles(htmlData)
+        if len(files) == 0:
+            LINK = LINK + "/" + LINK.rsplit('/')[1] + ".html"
+            mf = MakeFile(LINK,htmlData)
+            mf.createFile(ischunk)
         for file in files:
             fileLink = LINK + file
             getResponseByRequest(client, fileLink)
