@@ -9,12 +9,14 @@ def getResponseByRequest(client, LINK):
     sendRequest(client,LINK)
 
     #Get data
-    data = getResponse(client)
-
+    data, ischunk = getResponse(client)
+    print("Kiem tra chunk")
+    if ischunk:
+        print("La file chunk")
     #Make File
     print("data len: ",len(data))
     mf = MakeFile(LINK,data)
-    mf.createFile()
+    mf.createFile(ischunk)
     
 
 def makeRequest(client, LINK):
@@ -29,7 +31,7 @@ def makeRequest(client, LINK):
         getResponseByRequest(client,LINK)
     else:
         sendRequest(client, LINK)
-        htmlData = getResponse(client)
+        htmlData, ischunk = getResponse(client)
         files = getFolderFiles(htmlData)
         for file in files:
             fileLink = LINK + file

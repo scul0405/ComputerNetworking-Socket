@@ -95,8 +95,10 @@ def getResponse(client):
         # Xu li content length
         total = len(data)
         data += getContent(client,resHeader,total)
+        checkChunked = False
     else:
         # Xu li chunked
         data = getContent_chunked(client,resHeader,data)
+        checkChunked = True
         
-    return data
+    return data, checkChunked
