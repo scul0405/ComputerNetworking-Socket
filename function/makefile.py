@@ -18,7 +18,10 @@ class MakeFile:
         #     self.folderName = temp_LINK[temp_LINK.rfind("/"):]
         print("folder name: ",self.folderName)
         if os.getcwd().find("downloads\\") == -1: #neu dia chi current working directory chua co downloads thi thay doi dia chi de luu file download
-            dir = os.getcwd() + "\\downloads\\" #chi dinh dia chi luu file
+            if not(os.path.exists(os.getcwd()+"\\downloads\\")):
+                os.mkdir(os.getcwd()+"\\downloads\\")
+            os.chdir(os.getcwd()+"\\downloads\\")
+            dir = os.getcwd() #chi dinh dia chi luu file
             path = os.path.join(dir, self.folderName) #nối download/foldername   
             if (not(os.path.exists(path))): #Kiem tra folder ten fileName co ton tai trong download chua, neu chua thi tao folder root
                 os.mkdir(path)
@@ -28,12 +31,11 @@ class MakeFile:
         print(LINK)
         self.content_type=LINK[LINK.rfind(".")+1:]
         print(self.content_type)
+        
     def createFile(self,ischunk):
-        if ischunk == False: #truong hop link la 1 file
+        if ischunk == False: #truong hop khong phai la file chunk
             if self.content_type == 'com/' or self.content_type == 'com': #truong hop la file html
-                #print(os.getcwd()) 
                 fout = open("index.html","w")
-                #print("contet len: ",len(self.content))
                 fout.write(self.content.decode("utf-8"))
                 fout.close()
                 os.startfile("index.html")
@@ -45,16 +47,13 @@ class MakeFile:
                 os.startfile(fileName+"."+self.content_type)
         else: #truong hop link la chunk
             if self.content_type == 'com/' or self.content_type == 'com' or self.content_type =='': #truong hop la file html
-                #print(os.getcwd()) 
                 fout = open("index.html","wb")
-                #print("contet len: ",len(self.content))
                 fout.write(self.content)
                 fout.close()
                 os.startfile("index.html")
             else:
                 fileName = self.LINK[self.LINK.rfind("/")+1:self.LINK.rfind(".")]
                 fout = open(fileName+"."+self.content_type,"wb")
-                #print("contet len: ",len(self.content))
                 fout.write(self.content)
                 fout.close()
                 os.startfile(fileName+"."+self.content_type)

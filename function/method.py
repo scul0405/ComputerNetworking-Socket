@@ -28,10 +28,12 @@ def makeRequest(client, LINK):
     if isFile(ROUTE) == True:
         getResponseByRequest(client,LINK)
     else:
+        print("Checkfolder: isfolder")
         sendRequest(client, LINK)
         htmlData, ischunk = getResponse(client)
         files = getFolderFiles(htmlData)
         
+
         # export .html of folder
         mf = MakeFile(LINK + "/" + "index.html",htmlData)
         mf.createFile(ischunk)
