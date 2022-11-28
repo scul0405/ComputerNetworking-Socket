@@ -1,6 +1,5 @@
 import config
 
-
 def getLengthOfContent(resHeader):
     indexStart = resHeader.find(b"Content-Length") + len(b"Content-Length: ")
     indexEnd = resHeader.find(b"\r\n",indexStart)
@@ -17,28 +16,15 @@ def getContentType(resHeader):
 
 def getContent(client, resHeader, total):
     data = b""
-    # xu ly buffer size cho nay
-    # Voi content-type: text/html -> file be -> buff chi can 1KB moi lan la du
-    # Voi content-type loai khac -> file to -> tang buff size len
-    contentType = getContentType(resHeader)
     contentLength = getLengthOfContent(resHeader)
 
-    print(contentType, contentLength, total)
-    print(contentLength, contentType)
 
-    match contentType:
-        case "text/html":
-            buff = config.BUFFER_SIZE
-            while total < contentLength:
-                res = client.recv(buff)
-                data += res
-                total += len(res)
-        case _: #default
-            buff = 50*config.BUFFER_SIZE
-            while total < contentLength:
-                res = client.recv(buff)
-                data += res
-                total += len(res)
+    while total < contentLength:
+        buff = contentLength - total
+        res = client.recv(buff)
+        data += res
+        total += len(res)
+
     return data
 
 def getContent_chunked(client,resHeader,content):
@@ -66,7 +52,7 @@ def getContent_chunked(client,resHeader,content):
         # If it not have enough chunk-data -> get more
         while len(chunk_data) < chunk_leng10:
             chunk_data += client.recv(buff_size)
-     
+
         # Add chunk-data to data
         data += chunk_data[:chunk_leng10]
         # Give data remaining in chunk-data for the next chunk (loop)
