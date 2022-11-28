@@ -9,10 +9,13 @@ def getResponseByRequest(client, LINK):
     sendRequest(client,LINK)
     #Get data
     data, isChunk = getResponse(client)
+    # Loss connection
+    if len(data) == 0:
+        return False
     #Make File
     mf = MakeFile(LINK,"",data)
     mf.createFile(isChunk)
-    
+    return True
 
 def makeRequest(client, LINK):
     #Connect to HOST
@@ -21,7 +24,7 @@ def makeRequest(client, LINK):
     folderName = ""
     #Check ROUTE is a file or folder
     if isFile(ROUTE) == True:
-        getResponseByRequest(client,LINK)
+        return getResponseByRequest(client,LINK)
     else:
         if ROUTE[len(ROUTE)-1] == "/":
             temp = ROUTE[:-1]
@@ -30,6 +33,9 @@ def makeRequest(client, LINK):
         folderName = temp[temp.rfind("/")+1:]
         sendRequest(client, LINK)
         htmlData, ischunk = getResponse(client)
+        # Loss connection
+        if len(htmlData) == 0:
+            return
         files = getFolderFiles(htmlData)
 
         # export .html of folder
@@ -39,6 +45,8 @@ def makeRequest(client, LINK):
         # download file from folder if exist
         for file in files:
             fileLink = LINK + file
-            getResponseByRequest(client, fileLink)
-
+            if getResponseByRequest(client, fileLink) == False:
+                return False
+            
+        return True
 
