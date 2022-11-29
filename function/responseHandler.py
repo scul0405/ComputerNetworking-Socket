@@ -1,5 +1,4 @@
 import config
-import timeit
 
 def getLengthOfContent(resHeader):
     indexStart = resHeader.find(b"Content-Length") + len(b"Content-Length: ")
