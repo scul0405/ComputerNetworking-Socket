@@ -11,8 +11,6 @@ class MakeFile:
         self.HOST, self.ROUTE = getHostAndRoute(LINK)
         dir_cur = os.getcwd()
         dir_cur = dir_cur[dir_cur.rfind("\\")+1:]
-        # print("folder hien tai: ",os.getcwd()[os.getcwd().rfind("/")+1:])
-        # print("dir_cur: ", dir_cur)
         if self.ROUTE.find(dir_cur) == -1: #folder leaf cua work space hien tai khong co trong route, tuc la day la mot file le voi file truoc do nen ta tao folder de luu file
             if folderName == "": #truong hop la file chua co ten folder de luu thi lay ten trong HOST
                 self.folderName = self.HOST[:self.HOST.rfind(".")] #Lay ten de tao folder root
@@ -37,12 +35,8 @@ class MakeFile:
                 if (not(os.path.exists(path))): #Kiem tra folder ten fileName co ton tai trong download chua, neu chua thi tao folder root
                     os.mkdir(path)
                 os.chdir(path) #thay doi dia chi workspace
-        #print("dir down: ",os.getcwd())
         self.content = content
-        #print('test')
-        #print(LINK)
         self.content_type=LINK[LINK.rfind(".")+1:]
-        #print(self.content_type)
         
     def createFile(self,ischunk):
         if ischunk == False: #truong hop khong phai la file chunk
