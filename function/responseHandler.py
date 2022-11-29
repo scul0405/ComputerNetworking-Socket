@@ -57,7 +57,7 @@ def getContent_chunked(client,resHeader,content):
         while len(chunk_data) < chunk_leng10:   
             res = client.recv(buff_size)       
             if not res:
-                print("Server not response! Wait a minutes...")
+                print("Server not response! Wait a minute...")
                 raise
             chunk_data += res
 
