@@ -1,6 +1,5 @@
 import config
 
-
 def getLengthOfContent(resHeader):
     indexStart = resHeader.find(b"Content-Length") + len(b"Content-Length: ")
     indexEnd = resHeader.find(b"\r\n",indexStart)
@@ -15,30 +14,20 @@ def getContentType(resHeader):
         indexEnd = len(resHeader)
     return resHeader[indexStart:indexEnd].decode()
 
-def getContent(client, resHeader, total):
-    data = b""
-    # xu ly buffer size cho nay
-    # Voi content-type: text/html -> file be -> buff chi can 1KB moi lan la du
-    # Voi content-type loai khac -> file to -> tang buff size len
-    contentType = getContentType(resHeader)
+def getContent(client, resHeader, content):
+    data = content
+    total = len(content)
     contentLength = getLengthOfContent(resHeader)
 
-    print(contentType, contentLength, total)
-    print(contentLength, contentType)
-
-    match contentType:
-        case "text/html":
-            buff = config.BUFFER_SIZE
-            while total < contentLength:
-                res = client.recv(buff)
-                data += res
-                total += len(res)
-        case _: #default
-            buff = 50*config.BUFFER_SIZE
-            while total < contentLength:
-                res = client.recv(buff)
-                data += res
-                total += len(res)
+    while total < contentLength:
+        buff = contentLength - total
+        res = client.recv(buff)
+        if not res:
+            print("Server not response! Wait a minutes...")
+            raise
+        data += res
+        total += len(res)
+    
     return data
 
 def getContent_chunked(client,resHeader,content):
@@ -51,7 +40,7 @@ def getContent_chunked(client,resHeader,content):
     rec = content
     while True:
         chunk_data = b""
-        # get data for the first time
+        # get data for the first time      
         if not rec:
             rec = client.recv(buff_size)
         # Split chunk-length && chunk-data
@@ -64,9 +53,13 @@ def getContent_chunked(client,resHeader,content):
         if chunk_leng10 == 0:
             break
         # If it not have enough chunk-data -> get more
-        while len(chunk_data) < chunk_leng10:
-            chunk_data += client.recv(buff_size)
-     
+        while len(chunk_data) < chunk_leng10:   
+            res = client.recv(buff_size)       
+            if not res:
+                print("Server not response! Wait a minute...")
+                raise
+            chunk_data += res
+
         # Add chunk-data to data
         data += chunk_data[:chunk_leng10]
         # Give data remaining in chunk-data for the next chunk (loop)
@@ -90,11 +83,12 @@ def getHeader(client):
 
 def getResponse(client):
     resHeader, data = getHeader(client)
+    if len(resHeader) == 0:
+        raise
     #Kiem tra Header co can su dung chunked hay khong
     if (resHeader.find(b"Transfer-Encoding: chunked") == -1):
         # Xu li content length
-        total = len(data)
-        data += getContent(client,resHeader,total)
+        data = getContent(client,resHeader,data)
         checkChunked = False
     else:
         # Xu li chunked

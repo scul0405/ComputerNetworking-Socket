@@ -18,7 +18,6 @@ class MakeFile:
                 self.folderName = self.HOST[:self.HOST.rfind(".")] #Lay ten de tao folder root
             else: #truong hop co folderName thi chi can gan
                 self.folderName = folderName
-            print("folder name: ",self.folderName)
             if os.getcwd().find("downloads\\") == -1: #neu dia chi current working directory chua co downloads thi thay doi dia chi de luu file download
                 if not(os.path.exists(os.getcwd()+"\\downloads\\")):
                     os.mkdir(os.getcwd()+"\\downloads\\")
