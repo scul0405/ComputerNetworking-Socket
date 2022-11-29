@@ -13,8 +13,10 @@ def createAConnection(LINK, index):
     print(f'Socket {index} created at: {now}')
 
     client.settimeout(config.TIMEOUT_DEFAULT)
-    if makeRequest(client, LINK) == False:
-        print("Loss connection! Download Failed")
+    try:
+        makeRequest(client, LINK)
+    except Exception:
+        print("Loss connection! Download Failed...")
 
     client.close()
     now = datetime.now().time()

@@ -20,18 +20,13 @@ def getContent(client, resHeader, content):
     total = len(content)
     contentLength = getLengthOfContent(resHeader)
 
-    start = timeit.default_timer()
     while total < contentLength:
-        try:
-            buff = contentLength - total
-            time = timeit.default_timer() - start
-            client.settimeout(config.TIMEOUT_DEFAULT + 2*time)
-            res = client.recv(buff)
-            data += res
-            total += len(res)
-        except Exception:
-            print("Waiting connection...")
-            return ""
+        buff = contentLength - total
+        res = client.recv(buff)
+        if not res:
+            raise
+        data += res
+        total += len(res)
     
     return data
 
@@ -46,12 +41,8 @@ def getContent_chunked(client,resHeader,content):
     while True:
         chunk_data = b""
         # get data for the first time      
-        try:
-            if not rec:
-                rec = client.recv(buff_size)
-        except Exception:
-            print("Waiting connection...")
-            return ""
+        if not rec:
+            rec = client.recv(buff_size)
         # Split chunk-length && chunk-data
         splitChunk = rec.split(b"\r\n", 1)
         chunk_leng16 = splitChunk[0]                    # chunk-length in hex
@@ -62,15 +53,11 @@ def getContent_chunked(client,resHeader,content):
         if chunk_leng10 == 0:
             break
         # If it not have enough chunk-data -> get more
-        start = timeit.default_timer()
-        while len(chunk_data) < chunk_leng10:          
-            try:
-                time = timeit.default_timer() - start
-                client.settimeout(config.TIMEOUT_DEFAULT + 2*time)
-                chunk_data += client.recv(buff_size)
-            except Exception:
-                print("Waiting connection...")
-                return ""
+        while len(chunk_data) < chunk_leng10:   
+            res = client.recv(buff_size)       
+            if not res:
+                raise
+            chunk_data += res
 
         # Add chunk-data to data
         data += chunk_data[:chunk_leng10]
@@ -82,12 +69,8 @@ def getContent_chunked(client,resHeader,content):
 def getHeader(client):
     splitStr = b"\r\n\r\n"
     data = b""
-    while data.find(splitStr) == -1:    
-        try:
-            data += client.recv(config.BUFFER_SIZE)
-        except Exception:
-            print("Loss connection")
-            return ""
+    while data.find(splitStr) == -1:
+        data += client.recv(config.BUFFER_SIZE)
     
     indexStartContent = data.find(splitStr)
     #Lay Header
@@ -100,7 +83,7 @@ def getHeader(client):
 def getResponse(client):
     resHeader, data = getHeader(client)
     if len(resHeader) == 0:
-        return "", ""
+        raise
     #Kiem tra Header co can su dung chunked hay khong
     if (resHeader.find(b"Transfer-Encoding: chunked") == -1):
         # Xu li content length
