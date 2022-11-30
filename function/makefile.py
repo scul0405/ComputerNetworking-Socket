@@ -43,7 +43,7 @@ class MakeFile:
         
     def createFile(self,ischunk):
         if ischunk == False: #truong hop khong phai la file chunk
-            if self.content_type == '.domain/' or self.content_type == 'com': #truong hop la file html
+            if self.content_type == '.domain/' or self.content_type == '.domain': #truong hop la file html
                 fout = open("index.html","w")
                 fout.write(self.content.decode("utf-8"))
                 fout.close()
@@ -55,7 +55,7 @@ class MakeFile:
                 fout.close()
                 os.startfile(fileName+"."+self.content_type)
         else: #truong hop link la chunk
-            if self.content_type == '.domain/' or self.content_type == 'com' or self.content_type =='': #truong hop la file html
+            if self.content_type == '.domain/' or self.content_type == '.domain' or self.content_type =='': #truong hop la file html
                 fout = open("index.html","wb")
                 fout.write(self.content)
                 fout.close()
