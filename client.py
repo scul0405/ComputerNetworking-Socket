@@ -16,7 +16,7 @@ def createAConnection(LINK, index):
     try:
         makeRequest(client, LINK)
     except Exception:
-        print("Loss connection! Download Failed...")
+        print("Download Failed...")
 
     client.close()
     now = datetime.now().time()
